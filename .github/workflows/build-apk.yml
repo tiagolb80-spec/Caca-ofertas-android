@@ -35,6 +35,20 @@ jobs:
           test -f extracted/caca-ofertas/settings.gradle
           test -f extracted/caca-ofertas/app/src/main/AndroidManifest.xml
 
+      - name: Add in-app backend connection settings
+        run: |
+          cp overrides/config.js extracted/caca-ofertas/app/src/main/assets/config.js
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("extracted/caca-ofertas/app/src/main/assets/index.html")
+          html = p.read_text(encoding="utf-8")
+          marker = "</body>"
+          if marker not in html:
+              raise SystemExit("index.html sem fechamento body")
+          html = html.replace(marker, '<script src="config.js"></script>\\n' + marker, 1)
+          p.write_text(html, encoding="utf-8")
+          PY
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
