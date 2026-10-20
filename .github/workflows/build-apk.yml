@@ -47,7 +47,7 @@ jobs:
           marker = "</body>"
           if marker not in html:
               raise SystemExit("index.html sem fechamento body")
-          html = html.replace(marker, '<script src="config.js"></script>\\n' + marker, 1)
+          html = html.replace(marker, '<script src="config.js"></script>' + marker, 1)
           p.write_text(html, encoding="utf-8")
           PY
 
