@@ -7,7 +7,9 @@
   document.body.appendChild(root);
   const $=id=>document.getElementById(id);
   const normalize=value=>value.trim().replace(/\/$/,'').replace(/\/(health|api\/search)$/i,'');
-  const saved=localStorage.getItem('apiBase')||'';
+  const DEFAULT_API_BASE='https://caca-ofertas-api.onrender.com';
+  const saved=localStorage.getItem('apiBase')||DEFAULT_API_BASE;
+  if(!localStorage.getItem('apiBase')) localStorage.setItem('apiBase',DEFAULT_API_BASE);
   $('co-url').value=saved;
   $('co-open').onclick=()=>{$('co-panel').style.display=$('co-panel').style.display==='block'?'none':'block'};
   $('co-save').onclick=()=>{
