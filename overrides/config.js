@@ -1,0 +1,13 @@
+(()=> {
+  const style=document.createElement('style');
+  style.textContent='#co-setup{position:fixed;right:14px;bottom:18px;z-index:9999;font:14px Arial,sans-serif}#co-setup button{border:0;border-radius:12px;padding:11px 14px;font-weight:700;box-shadow:0 4px 18px #102a4330}#co-open{background:#102a43;color:white}#co-panel{display:none;width:min(330px,calc(100vw - 28px));background:#fff;color:#182b3a;border:1px solid #dbe5ed;border-radius:16px;padding:16px;margin-bottom:9px;box-shadow:0 12px 40px #102a4333}#co-panel h3{margin:0 0 8px;font-size:17px}#co-panel p{font-size:12px;line-height:1.45;color:#64748b}#co-url{width:100%;box-sizing:border-box;padding:12px;border:1px solid #d5e0e9;border-radius:10px;font-size:14px}#co-actions{display:flex;gap:8px;margin-top:9px}#co-actions button{flex:1;cursor:pointer}#co-save{background:#ff6b35;color:#fff}#co-test{background:#edf2f7;color:#334e68}#co-status{font-size:12px;line-height:1.4;margin-top:9px;color:#526579}';
+  document.head.appendChild(style);
+  const root=document.createElement('div');root.id='co-setup';
+  root.innerHTML='<section id="co-panel"><h3>Conexão da busca</h3><p>Informe a URL HTTPS do backend Caça Ofertas. A chave da API deve ficar somente no servidor.</p><input id="co-url" type="url" placeholder="https://seu-backend.exemplo.com"><div id="co-actions"><button id="co-save">Salvar</button><button id="co-test">Testar</button></div><div id="co-status">A busca online exige um serviço publicado e configurado.</div></section><button id="co-open">⚙ Conexão</button>';
+  document.body.appendChild(root);
+  const $=id=>document.getElementById(id), saved=localStorage.getItem('apiBase')||'';
+  $('co-url').value=saved;
+  $('co-open').onclick=()=>{$('co-panel').style.display=$('co-panel').style.display==='block'?'none':'block'};
+  $('co-save').onclick=()=>{const value=$('co-url').value.trim().replace(/\/$/,'');try{const u=new URL(value);if(u.protocol!=='https:')throw 0;localStorage.setItem('apiBase',value);$('co-status').textContent='Endereço salvo. Recarregando para ativar…';setTimeout(()=>location.reload(),350)}catch(e){$('co-status').textContent='Informe uma URL HTTPS válida.'}};
+  $('co-test').onclick=async()=>{const value=$('co-url').value.trim().replace(/\/$/,'');try{if(new URL(value).protocol!=='https:')throw new Error('Use HTTPS.');$('co-status').textContent='Testando…';const r=await fetch(value+'/health');if(!r.ok)throw new Error('Resposta '+r.status);const d=await r.json();$('co-status').textContent=d.provider_configured?'Conexão OK; provedor de busca configurado.':'Servidor online, mas falta a chave SERPAPI_KEY no backend.'}catch(e){$('co-status').textContent='Não foi possível confirmar. Confira a URL, o HTTPS e se o backend está publicado.'}};
+})();
