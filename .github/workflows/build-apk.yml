@@ -1,0 +1,52 @@
+
+name: Build Caça Ofertas APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos do projeto
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extrair projeto Android
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          unzip -o caca-ofertas-android-projeto.zip -d extracted
+          test -f extracted/caca-ofertas/app/build.gradle
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar ferramentas Android
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Compilar APK
+        run: gradle --no-daemon -p extracted/caca-ofertas assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Caca-Ofertas-APK
+          path: extracted/caca-ofertas/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
