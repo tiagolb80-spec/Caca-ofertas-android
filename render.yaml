@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: caca-ofertas-api
+    runtime: docker
+    plan: free
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: SERPAPI_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
