@@ -45,4 +45,37 @@
       else $('co-status').textContent=e.message||'Falha ao testar a conexão.';
     }
   };
+  // Abre links de ofertas fora do app, preferindo a integração nativa quando disponível.
+  document.addEventListener('click', function(event) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (event.target && event.target.closest && event.target.closest('#co-setup')) return;
+    const anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+    if (!anchor) return;
+    const raw = anchor.getAttribute('href');
+    if (!raw || /^(javascript:|mailto:|tel:|#)/i.test(raw.trim())) return;
+    let url;
+    try { url = new URL(raw, document.baseURI); } catch (_) { return; }
+    if (!/^https?:$/.test(url.protocol)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const destination = url.href;
+    // Cordova / plugins que suportam abertura explícita no navegador do aparelho.
+    try {
+      if (window.cordova && window.cordova.InAppBrowser && typeof window.cordova.InAppBrowser.open === 'function') {
+        window.cordova.InAppBrowser.open(destination, '_system');
+        return;
+      }
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser &&
+          typeof window.Capacitor.Plugins.Browser.open === 'function') {
+        window.Capacitor.Plugins.Browser.open({ url: destination });
+        return;
+      }
+      const popup = window.open(destination, '_system');
+      if (popup) return;
+      window.open(destination, '_blank');
+    } catch (_) {
+      window.location.href = destination;
+    }
+  }, true);
+
 })();
